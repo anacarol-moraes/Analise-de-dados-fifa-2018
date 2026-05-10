@@ -1,62 +1,25 @@
-from turtledemo.round_dance import stop
-
-import kagglehub
 import pandas as pd
-import os
-
-# baixa o dataset
-path = kagglehub.dataset_download("shashwatwork/consume-complaints-dataset-fo-nlp")
-print("Arquivos disponíveis:", os.listdir(path))
-# carrega o arquivo
-df = pd.read_csv(path + "/complaints_processed.csv")
-
-# primeiras informações
-print("Tamanho:", df.shape)
-print("\nColunas:", df.columns.tolist())
-print("\nPrimeiras linhas:")
+import matplotlib.pyplot as plt
+#carregar dataset
+df = pd.read_csv(r"C:\Users\anaca\Downloads\archive\players_18.csv")
+#explorando os dados
 print(df.head())
-
-#mostrar produtos e reclamações
-print("Produtos e quantidade de reclamações:")
-print(df['product'].value_counts())
-
-#exemplo de reclamação completa
-print ("\nExemplo de reclamação:")
-print(df['narrative'][0])
-
-#checar se existe texto vazio
-print("\nValores vazios por coluna:")
-print(df.isnull().sum())
-
-#remover a coluna inutil
-df = df.drop(columns=['Unnamed: 0'])
-#remover linhas com texto vazio
-df = df.dropna(subset=['narrative'])
-#verificação
-print("Tamanho após limpeza:", df.shape)
-print("\nValores vazios:")
-print(df.isnull().sum())
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-
-#cria o vetorizador
-tfidf = TfidfVectorizer(max_features=1000, stop_words='english')
-#aplica no texto das reclamações
-matriz = tfidf.fit_transform(df['narrative'])
-print("Tamanho da matriz TF-IDF:", matriz.shape)
-print("\nAlgumas palavras capturadas:")
-print(tfidf.get_feature_names_out()[:20])
-
-#nome das 1000 palavras
-palavras = tfidf.get_feature_names_out()
-#media de tf-idf por categoria
-df_tfidf = pd.DataFrame(matriz.toarray(), columns=palavras)
-df_tfidf['product'] = df['product'].values
-
-print("Top 10 palavras por categoria de reclamação: \n")
-for categoria in df['product'].unique():
-    media =df_tfidf[df_tfidf['product'] == categoria].drop(columns='product').mean()
-    top10 = media.sort_values(ascending = False).head(10)
-    print(f"---{categoria}---")
-    print(top10.to_string())
-    print()
+print(df.columns)
+# Selecionando as colunas relevantes para análise
+df_players = df[['short_name','player_positions','overall','potential','age']]
+# mostrando os 10 jogadores com maior potencial
+print(df_players.sort_values('potential', ascending = False).head(10))
+top10 = df_players.sort_values(by=['potential','overall'], ascending=[False,False]).head(10)
+# Extraindo a posição principal de cada jogador
+df_players ['main_position'] = df_players['player_positions'].str.split(',').str.get(0)
+#mostrando a media de overall das posições principais de cada jogador
+print(df_players.groupby('main_position')['overall'].mean())
+# Calculando a diferença entre potencial e overall
+df_players ['diferenca']= df_players ['potential'] -df_players ['overall']
+#exibe os dados dos jogadores com mais diferença de overall
+print(df_players[['short_name', 'age', 'overall', 'potential', 'diferenca']].sort_values('diferenca', ascending=False).head(10))
+plt.barh(top10['short_name'], top10['overall'])
+plt.title("Top 10 jogadores de 2018")
+plt.xlabel("Eixo X (Overall)")
+plt.ylabel('Eixo Y (nome)')
+plt.show()
