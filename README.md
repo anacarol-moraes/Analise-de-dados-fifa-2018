@@ -1,1 +1,2 @@
 # Analise-de-dados-fifa-2018
+#Este projeto contem informações de jogadores fifa 2018, ele informa os 10 jogadores com melhor potencial, posição principal de cada jogador, mostra a media overall da principal posição de cada jogador e exibe os dados com jogadores que tem mais diferença de overall, por fim exibe um grafico com os melhores jogadores da temporada 2018 no qual foi utilizado pandas e matplotlib
